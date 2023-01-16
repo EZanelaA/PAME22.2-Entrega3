@@ -3,13 +3,13 @@ from os import system
 class Staff:
     cargo = str()
 
-    def __init__(self, identificacao:str, usuario:str, senha:str) -> None:
-        self.id = identificacao
+    def __init__(self, id:str, usuario:str, senha:str) -> None:
+        self.id = id    # indentificador (nome, numero, ...)
         self.__usuario = usuario
         self.__senha = senha
 
     def __repr__(self) -> str:
-        return f"Nome: {type(self).__name__} - ID: {self.id}\n"
+        return f"Cargo: {type(self).__name__} - ID: {self.id}\n"
 
     def getUsuario(self):
         return self.__usuario
@@ -24,13 +24,13 @@ class Staff:
         self.__senha = novaSenha
 
 class Consultor(Staff):     
-    def __init__(self, identification:str, username:str, password:str) -> None:
-        super.__init__(identification, username, password)
+    def __init__(self, id:str, usuario:str, senha:str) -> None:
+        super().__init__(id, usuario, senha)
         self.cargo = "consultor"
 
 class Gerente(Staff):
-    def __init__(self, identification:str, username:str, password:str) -> None:
-        super.__init__(identification, username, password)
+    def __init__(self, id:str, usuario:str, senha:str) -> None:
+        super().__init__(id, usuario, senha)
         self.cargo = "gerente"
 
 class Projeto:
@@ -41,13 +41,12 @@ class Projeto:
         self.c = concepcao
         self.i = idVisual
     def __repr__(self) -> str:
-        return f"Nome: {type(self).__name__} - Gerente: {self.equipe[-1]}\n"
+        return f"Nome: {self.nome} - Gerente: {self.equipe[-1]}\n"
 
 class Sistema:
     gerentes = list()
     consultores = list()
     projetos = list()
-    staff = gerentes + consultores
     projetosAnalise = list()    # [[consultor, etapa, projeto]]
 
     def criarProjeto(self):
@@ -88,11 +87,11 @@ class Sistema:
     def criarConsultor(self):
         print("Criando consultor...\n")
         try:
-            identificador = input("  Insira sua ID ")
-            usuario = input("  Insira seu usuario de acesso ")
-            senha = input("  Insira sua senha de acesso ")
+            identificador = input("  Digite sua ID: ")
+            usuario = input("  Digite seu usuario: ")
+            senha = input("  Digite sua senha de acesso: ")
             self.consultores.append(Consultor(identificador, usuario, senha))
-            print("\CONSULTOR CRIADO COM SUCESSO!")
+            print("\nCONSULTOR CRIADO COM SUCESSO!")
         except:
             print("HOUVE UM ERRO NA CRIACAO DO CONSULTOR, POR FAVOR TENTE DE NOVO")
             return
@@ -113,15 +112,11 @@ class Sistema:
 
     def criarGerente(self):
         print("Criando gerente...\n")
-        try:
-            identificador = input("  Insira sua ID ")
-            usuario = input("  Insira seu usuario de acesso ")
-            senha = input("  Insira sua senha de acesso ")
-            self.consultores.append(Gerente(identificador, usuario, senha))
-            print("\GERENTE CRIADO COM SUCESSO!")
-        except:
-            print("HOUVE UM ERRO NA CRIACAO DO GERENTE, POR FAVOR TENTE DE NOVO")
-            return
+        id = input("  Digite sua ID: ")
+        usuario = input("  Digite seu usuario: ")
+        senha = input("  Digite sua senha de acesso: ")
+        self.gerentes.append(Gerente(id, usuario, senha))
+        print("\nGERENTE CRIADO COM SUCESSO!")
 
     def removerGerente(self):
         print("Removendo gerente...\n")
@@ -138,17 +133,17 @@ class Sistema:
             return
 
     def listarGCP(self):
-        print("\n---GERENTES---\n")
-        for g,  in self.gerentes:
+        print("\n---LISTA DE FUNCIONARIOS---\n")
+        for g in self.gerentes:
             print(g)
-        print("\n---CONSULTORES---\n")
-        for c,  in self.consultores:
+        for c in self.consultores:
             print(c)
-        print("\n---PROJETOS---\n")
-        for p,  in self.projetos:
+        print("\n---LISTA DE PROJETOS---\n")
+        for p in self.projetos:
             print(p)
 
     def logar(self):
+        staff = self.gerentes + self.consultores
         print("Login...")
         try:
             usuario = input("  Insira seu nome: ")
@@ -158,7 +153,7 @@ class Sistema:
             return
         cargo = str()
         id = str()
-        for s in self.staff:
+        for s in staff:
             if s.getUsuario() == usuario and s.getSenha() == senha:
                 cargo = s.cargo
                 id = s.id
@@ -224,18 +219,28 @@ class Sistema:
             pass
         elif cargo == "consultor":
             system("cls")
+            for p in self.projetosAnalise:
+                if id in p:
+                    print("SEU AVANCO AINDA ESTA EM ANALISE")
+                    return
             print("Pedido de Avanco de Projeto... ")
-            print("PROJETOS ALOCADO: ")
             projetos = list()
             for p in self.projetos:
                 if id in p.equipe:
                     projetos.append(p)
             print()
-            # continuar aqui <------------------------------------------------------
-            '''while True:
+            while True:
                 nome = input("  Insira o nome do projeto que voce deseja avancar: ")
                 etapa = input("  Insira a etapa do projeto que voce deseja avancar: ")
-                if id not in p.equipe'''
+                for pA in self.projetosAnalise:
+                    if nome in pA:
+                        print("ESSE PROJETO JA ESTA SOBRE ANALISE")
+                        return
+                for p in projetos:
+                    if p.nome == nome:
+                        self.projetosAnalise.append([id, etapa, nome])
+                        print("SEU AVANCO ENTROU PARA ANALISE")
+                        return
 
     def logOffMenu(self):
         print("1. Criar Projeto")
@@ -296,6 +301,7 @@ class Sistema:
             elif choice == "3":
                 self.projetosAlocado(id)
             elif choice == "4":
+                # continuar aki <----------------------------------------
                 self.AvancarProjeto(id, cargo)
             elif choice == "5":
                 self.pedirRetirada()
@@ -335,7 +341,7 @@ class Sistema:
             elif choice == "7":
                 print(choice)
             elif choice == "8":
-                rue = False
+                run = False
             else:
                 print("POR FAVOR, INSIRA UMA OPCAO EXISTENTE\n")
 
